@@ -1,0 +1,1114 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prácticas de laboratorio</title>
+<meta name="description" content="Registro de prácticas de laboratorio: materias, tratamientos, repeticiones, fotografías y comentarios">
+<meta name="theme-color" content="#1d5f8a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1318" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lab">
+<style>
+:root{
+  --bg:#f3f6f8; --surface:#ffffff; --surface-2:#eaf0f4; --text:#142029; --muted:#5a6b77;
+  --line:#d9e2e8; --primary:#1d5f8a; --primary-ink:#ffffff; --primary-soft:#dcebf5;
+  --accent:#d99a12; --danger:#b3261e; --ok:#1d7f47; --warn:#a35f00;
+  --shadow:0 1px 2px rgba(15,35,50,.06),0 4px 16px rgba(15,35,50,.06);
+  --r:18px; --nav-h:68px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0d1318; --surface:#151d24; --surface-2:#1c2730; --text:#e4ebf0; --muted:#93a3ae;
+    --line:#27343e; --primary:#6cb6e8; --primary-ink:#04182a; --primary-soft:#1a3346;
+    --accent:#f0b73a; --danger:#ff8a80; --ok:#5fd394; --warn:#f2a54a;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  min-height:100dvh;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+
+.appbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;
+  padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.appbar h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.01em;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.logo{width:32px;height:32px;border-radius:9px;flex:none}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);
+  border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.pill.ok .dot{background:var(--ok)} .pill.pend .dot{background:var(--accent)} .pill.err .dot{background:var(--danger)}
+.pill.busy .dot{animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.25}}
+
+main{max-width:640px;margin:0 auto;padding:16px}
+.view{display:none} .view.active{display:block;animation:fade .18s ease-out}
+@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+h2{font-size:24px;margin:4px 0 4px;letter-spacing:-.02em}
+.sub{color:var(--muted);margin:0 0 16px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.summary{font-weight:700;font-size:17px;margin-top:2px}
+.summary small{display:block;font-weight:500;color:var(--muted);font-size:13px;margin-top:2px}
+.section-title{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--primary);margin:2px 0 10px;display:flex;align-items:center;gap:8px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.grid.one{grid-template-columns:1fr}
+.full{grid-column:1/-1}
+label.f,div.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--muted);min-width:0}
+input[type=text],input[type=date],input[type=url],input[type=password],input[type=number],select,textarea{
+  width:100%;min-height:48px;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface-2);
+  color:var(--text);font-size:16px;font-weight:500;outline:none;transition:border-color .15s,background .15s;appearance:none;-webkit-appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
+textarea{min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);background:var(--surface)}
+.hint{font-size:12px;color:var(--muted);font-weight:500}
+.inline{display:flex;gap:8px;align-items:center} .inline > input,.inline > select{flex:1;min-width:0}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:12px;background:var(--surface-2);font-weight:600;color:var(--text);font-size:15px}
+.switch small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.switch input{width:22px;height:22px;accent-color:var(--primary);flex:none}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:14px;border:1.5px solid var(--line);
+  background:var(--surface);font-weight:700;font-size:15px;color:var(--text);transition:transform .08s,filter .15s;text-decoration:none}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
+.btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,var(--line))}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--primary);padding:0 10px;min-height:40px}
+.btn.sm{min-height:38px;font-size:14px;padding:0 12px;border-radius:11px}
+.btn.block{width:100%}
+.btn.xl{width:100%;min-height:58px;font-size:17px;border-radius:16px}
+.btn:disabled{opacity:.5}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-row .btn{flex:1}
+
+/* Inicio */
+.hero{background:linear-gradient(135deg,var(--primary),color-mix(in srgb,var(--primary) 65%,#0a2236));color:#fff;border:0;position:relative;overflow:hidden}
+@media (prefers-color-scheme:dark){.hero{background:linear-gradient(135deg,#1b3d55,#10263a);color:var(--text)}}
+.hero .eyebrow{color:rgba(255,255,255,.75)}
+.hero h2{color:inherit;margin:4px 0 2px}
+.hero p{margin:0;opacity:.85;font-size:14px;max-width:64%}
+.hero-art{position:absolute;right:10px;top:8px;width:96px;opacity:.95;pointer-events:none}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;position:relative}
+.stat{background:rgba(255,255,255,.14);border-radius:14px;padding:10px 12px}
+.stat b{display:block;font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;opacity:.85}
+
+.materia-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 4px 8px}
+.materia-h b{font-size:16px}
+.materia-h small{color:var(--muted);font-weight:600;font-size:12px;margin-left:6px}
+
+/* Listas */
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);text-align:left;width:100%;color:var(--text)}
+.item .badge{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-weight:800;color:#fff;background:var(--c,var(--primary));flex:none;font-size:15px;line-height:1.05;text-align:center}
+.item .badge.ic{background:var(--primary-soft);color:var(--primary)}
+.item .badge small{display:block;font-size:10px;font-weight:700;opacity:.85}
+.item .meta{flex:1;min-width:0}
+.item .meta b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .meta small{color:var(--muted);font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .thumb{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none;background:var(--surface-2)}
+.sync-ic{flex:none;width:20px;height:20px}
+.chev{flex:none;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:28px 16px}
+.empty b{display:block;color:var(--text);margin-bottom:4px}
+.group-h{font-size:13px;font-weight:700;color:var(--muted);margin:14px 4px 2px;display:flex;justify-content:space-between;gap:8px}
+.back{display:inline-flex;align-items:center;gap:4px;border:0;background:none;color:var(--primary);font-weight:700;padding:6px 0;margin-bottom:6px}
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.toolbar > *{flex:1;min-width:0}
+
+/* Chips de selección */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 14px;border-radius:12px;background:var(--surface-2);border:1.5px solid var(--line);
+  font-size:15px;font-weight:700;color:var(--text)}
+.chip .c{width:12px;height:12px;border-radius:50%;background:var(--c,var(--primary));flex:none}
+.chip.on{background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
+.chip.num{min-width:48px;justify-content:center;font-variant-numeric:tabular-nums}
+.chip.tag{min-height:34px;padding:4px 6px 4px 12px;font-size:14px;font-weight:600}
+.chip.tag .x{border:0;background:none;color:var(--muted);font-weight:800;font-size:18px;line-height:1;padding:2px 6px}
+.chip.tag.static{padding:4px 12px}
+
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface-2);font-size:22px;font-weight:700;color:var(--primary)}
+.stepper input{width:72px;text-align:center;font-size:22px;font-weight:800;min-height:44px;padding:4px;font-variant-numeric:tabular-nums}
+.rowline{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line);margin-top:12px}
+.rowline > span{font-weight:700}
+.rowline > span small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+
+/* Fotos */
+.fotos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.fotos:empty{display:none}
+.foto{position:relative;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line)}
+.foto img{width:100%;height:100%;object-fit:cover;display:block}
+.foto .x{position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.62);color:#fff;font-weight:800;font-size:16px;line-height:1}
+.foto .n{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.62);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;max-width:calc(100% - 8px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.foto .drive{display:grid;place-items:center;height:100%;font-size:12px;font-weight:700;color:var(--primary);text-align:center;padding:6px;text-decoration:none}
+.foto-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fotos.lista{grid-template-columns:1fr}
+.foto-it{display:flex;gap:10px;align-items:center;padding:8px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)}
+.foto-it .foto{width:80px;height:80px;flex:none}
+.foto-it .meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.foto-it .meta code{font-size:11px;color:var(--muted);word-break:break-all}
+.foto-it .meta input{min-height:40px;padding:8px 10px;font-size:15px;background:var(--surface)}
+.foto-it .quitar{flex:none;align-self:flex-start;width:32px;height:32px;border-radius:50%;border:0;background:transparent;color:var(--muted);font-size:20px;font-weight:800}
+.cuenta{margin-left:auto;font-size:12px;letter-spacing:0;text-transform:none;color:var(--muted)}
+
+.nombre-foto{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;padding:8px 10px;border-radius:10px;background:var(--surface-2);color:var(--muted);word-break:break-all}
+
+/* Matriz tratamiento × repetición */
+.matriz{overflow-x:auto;margin:4px -4px 0;padding:0 4px}
+.matriz table{border-collapse:separate;border-spacing:6px;min-width:100%}
+.matriz th{font-size:12px;color:var(--muted);font-weight:700;text-align:center;padding:0 2px}
+.matriz th.t{text-align:left;font-size:13px;color:var(--text);white-space:nowrap;max-width:130px;overflow:hidden;text-overflow:ellipsis}
+.matriz th.t .c{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:6px}
+.matriz td button{width:100%;min-width:46px;height:46px;border-radius:10px;border:1.5px dashed var(--line);background:transparent;font-weight:800;font-size:13px;color:var(--muted);line-height:1.1}
+.matriz td button.has{border-style:solid;border-color:transparent;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--text)}
+.matriz td button small{display:block;font-size:10px;font-weight:600;color:var(--muted)}
+
+.sticky-save{position:sticky;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 10px);z-index:5;margin:6px 0 14px}
+.sticky-save .btn{box-shadow:0 8px 24px color-mix(in srgb,var(--primary) 35%,transparent)}
+.edit-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:14px;margin-bottom:14px;
+  background:color-mix(in srgb,var(--accent) 18%,transparent);font-weight:700;font-size:14px}
+
+/* Nav */
+nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:space-around;
+  height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding:6px 6px env(safe-area-inset-bottom);
+  background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+nav.bottom button{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;background:none;
+  color:var(--muted);font-size:11.5px;font-weight:600;border-radius:14px}
+nav.bottom button .ni{width:56px;height:30px;border-radius:999px;display:grid;place-items:center;transition:background .2s}
+nav.bottom button.on{color:var(--text)}
+nav.bottom button.on .ni{background:var(--primary-soft);color:var(--primary)}
+
+/* Toast y diálogos */
+.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 84px);transform:translate(-50%,20px);opacity:0;z-index:2000;
+  background:var(--text);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:600;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);
+  transition:all .25s;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.error{background:var(--danger);color:#fff}
+dialog{border:0;padding:0;border-radius:22px 22px 0 0;width:100%;max-width:640px;margin:auto auto 0;max-height:92dvh;background:var(--surface);color:var(--text)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dlg-head{position:sticky;top:0;background:var(--surface);padding:16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:2}
+.dlg-head b{font-size:17px}
+.dlg-body{padding:16px}
+.dlg-foot{position:sticky;bottom:0;background:var(--surface);padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.note{padding:12px 14px;border-radius:12px;background:var(--surface-2);font-size:13px;color:var(--muted);margin-bottom:14px}
+.note.warn{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--text)}
+dl.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;font-size:14px}
+dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;font-weight:600;word-break:break-word;white-space:pre-wrap}
+.visor{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.92);display:grid;place-items:center;padding:16px}
+.visor img{max-width:100%;max-height:85dvh;border-radius:8px}
+.visor span{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom));left:16px;right:16px;color:#fff;text-align:center;font-size:13px;word-break:break-all}
+.hidden{display:none!important}
+a{color:var(--primary)}
+
+.update{position:fixed;left:12px;right:12px;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 12px);z-index:1500;max-width:616px;margin:0 auto;
+  display:flex;align-items:center;gap:12px;padding:12px 12px 12px 16px;border-radius:18px;background:var(--text);color:var(--bg);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.update span{flex:1;font-size:14px;line-height:1.3}
+.update span b{display:block;font-size:15px}
+.update .btn{min-height:40px;background:var(--primary);border-color:var(--primary);color:var(--primary-ink);flex:none}
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#1d5f8a"/><path d="M26 12h12M28 12v14L17 46a4 4 0 0 0 3.5 6h23a4 4 0 0 0 3.5-6L36 26V12" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21.5 42h21l2.5 4.5a2 2 0 0 1-1.8 3H20.8a2 2 0 0 1-1.8-3z" fill="#7fd1c6"/><circle cx="29" cy="36" r="2" fill="#7fd1c6"/><circle cx="35" cy="31" r="1.5" fill="#7fd1c6"/></svg>
+  <h1>Prácticas de laboratorio</h1>
+  <button class="pill" id="syncPill" type="button" aria-label="Sincronizar"><span class="dot"></span><span id="syncText">—</span></button>
+</header>
+
+<main>
+<!-- ============ INICIO ============ -->
+<section class="view active" id="v-inicio">
+  <div class="card hero">
+    <svg class="hero-art" viewBox="0 0 100 100" aria-hidden="true"><path d="M38 10h24M41 10v26L22 74a7 7 0 0 0 6 10h44a7 7 0 0 0 6-10L59 36V10" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M29 64h42l6 11a4 4 0 0 1-3.5 6h-47A4 4 0 0 1 23 75z" fill="rgba(127,209,198,.85)"/><circle cx="44" cy="56" r="3" fill="rgba(127,209,198,.9)"/><circle cx="54" cy="48" r="2.2" fill="rgba(127,209,198,.9)"/></svg>
+    <div class="eyebrow" id="hoyTxt"></div>
+    <h2>Mis prácticas</h2>
+    <p>Fotografías por tratamiento y repetición, con comentarios.</p>
+    <div class="stats">
+      <div class="stat"><b id="stPrac">0</b><span>prácticas</span></div>
+      <div class="stat"><b id="stReg">0</b><span>registros</span></div>
+      <div class="stat"><b id="stPend">0</b><span>por enviar</span></div>
+    </div>
+  </div>
+  <div class="btn-row" style="margin-bottom:6px">
+    <button class="btn primary" type="button" id="btnNuevaPrac">+ Nueva práctica</button>
+    <button class="btn" type="button" id="btnNuevaMat">+ Materia</button>
+  </div>
+  <div id="pracList"></div>
+  <button class="btn block hidden" id="btnInstall" type="button" style="margin-top:14px">Instalar en este teléfono</button>
+</section>
+
+<!-- ============ DETALLE DE PRÁCTICA ============ -->
+<section class="view" id="v-practica">
+  <button class="back" type="button" data-go="inicio"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m15 6-6 6 6 6"/></svg>Prácticas</button>
+  <div id="pracDet"></div>
+</section>
+
+<!-- ============ CAPTURAR ============ -->
+<section class="view" id="v-capturar">
+  <div class="card hidden" id="capVacio">
+    <div class="empty"><b>Primero crea una práctica</b>Indica la materia, el número de práctica, los tratamientos y las repeticiones.</div>
+    <button class="btn primary block" type="button" data-accion="nuevaPrac">+ Nueva práctica</button>
+  </div>
+  <div id="capForm">
+    <div class="edit-banner hidden" id="capEdit"><span>Editando un registro</span><button class="btn sm" type="button" id="capCancelarEd">Cancelar</button></div>
+    <div class="card">
+      <label class="f">Práctica<select id="cPrac"></select></label>
+      <div class="hint" id="cPracInfo" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Tratamiento</div>
+      <div class="chips" id="cTrat"></div>
+      <div class="section-title" style="margin-top:16px">Repetición</div>
+      <div class="chips" id="cRep"></div>
+      <div class="rowline" id="cIndRow">
+        <span>Individuo / muestra<small>Dentro de la repetición</small></span>
+        <div class="stepper"><button type="button" id="iMenos" aria-label="Individuo anterior">−</button><input type="text" id="cInd" inputmode="numeric" aria-label="Número de individuo"><button type="button" id="iMas" aria-label="Individuo siguiente">+</button></div>
+      </div>
+    </div>
+    <div class="card hidden" id="cVarsCard">
+      <div class="section-title">Variables</div>
+      <div class="grid" id="cVars"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Fotografías<span class="cuenta" id="cFotosN"></span></div>
+      <div class="foto-btns">
+        <label class="btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg><span id="fCamTxt">Cámara</span><input type="file" id="fCam" accept="image/*" capture="environment" hidden></label>
+        <label class="btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg>Galería<input type="file" id="fGal" accept="image/*" multiple hidden></label>
+      </div>
+      <div class="fotos lista" id="cFotos"></div>
+      <div class="hint" style="margin-top:10px" id="cNombreBox">Sin límite de fotos por repetición: toma todas las que necesites (vista general, detalle, lupa…). Nombre de la primera: <span class="nombre-foto" id="cNombre" style="display:block;margin-top:4px"></span></div>
+    </div>
+    <div class="card">
+      <label class="f">Comentarios<textarea id="cCom" placeholder="Observaciones particulares de este individuo o repetición…"></textarea></label>
+    </div>
+    <div class="sticky-save"><button class="btn primary xl" id="btnGuardar" type="button">Guardar registro</button></div>
+    <div class="card" id="cRecientes"></div>
+  </div>
+</section>
+
+<!-- ============ REGISTROS ============ -->
+<section class="view" id="v-registros">
+  <h2>Registros</h2>
+  <p class="sub">Guardados en el teléfono y enviados a Google Sheets cuando hay conexión.</p>
+  <div class="toolbar">
+    <select id="rFiltro" aria-label="Filtrar por práctica"></select>
+  </div>
+  <div class="toolbar"><input type="text" id="rBuscar" placeholder="Buscar tratamiento, comentario…" autocomplete="off"></div>
+  <div class="btn-row" style="margin-bottom:6px">
+    <button class="btn sm" id="btnCsv" type="button">Exportar a Excel (CSV)</button>
+    <button class="btn sm primary" id="btnSyncRec" type="button">Sincronizar</button>
+  </div>
+  <div class="list" id="rList"></div>
+</section>
+
+<!-- ============ AJUSTES ============ -->
+<section class="view" id="v-ajustes">
+  <h2>Ajustes</h2>
+  <p class="sub">Materias, conexión con Google Sheets (Excel) y respaldo.</p>
+
+  <div class="card">
+    <div class="card-head"><div class="section-title" style="margin:0">Materias</div><button class="btn sm" type="button" data-accion="nuevaMat">+ Materia</button></div>
+    <div class="list" id="aMaterias" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Google Sheets</div>
+    <div class="note" id="aSyncEstado"></div>
+    <div class="grid one">
+      <label class="f">URL del script (termina en /exec)<input type="url" id="aUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
+      <label class="f">Clave<input type="password" id="aClave" autocomplete="off"></label>
+      <label class="f">Tu nombre<input type="text" id="aNombre" placeholder="Se anota en cada registro" autocomplete="name"></label>
+      <div class="btn-row"><button class="btn" type="button" id="aProbar">Probar conexión</button><button class="btn primary" type="button" id="aGuardar">Guardar</button></div>
+      <a class="btn block hidden" id="aAbrirHoja" target="_blank" rel="noopener">Abrir la hoja</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Respaldo y espacio</div>
+    <div class="grid one">
+      <button class="btn" type="button" id="aRespaldo">Descargar respaldo (.json)</button>
+      <label class="btn">Importar respaldo<input type="file" id="aImportar" accept=".json,application/json" hidden></label>
+      <button class="btn" type="button" id="aLiberar">Liberar fotos ya subidas a Drive</button>
+      <div class="hint" id="aEspacio"></div>
+    </div>
+  </div>
+  <p class="hint" style="text-align:center">Versión <span id="appVer"></span></p>
+</section>
+</main>
+
+<nav class="bottom" id="nav">
+  <button type="button" data-go="inicio" class="on"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/></svg></span>Prácticas</button>
+  <button type="button" data-go="capturar"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg></span>Capturar</button>
+  <button type="button" data-go="registros"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></span>Registros</button>
+  <button type="button" data-go="ajustes"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></span>Ajustes</button>
+</nav>
+
+<dialog id="dlg">
+  <div class="dlg-head"><b id="dlgTitle"></b><button class="btn ghost sm" data-cerrar type="button">Cerrar</button></div>
+  <div class="dlg-body" id="dlgBody"></div>
+  <div class="dlg-foot btn-row" id="dlgFoot"></div>
+</dialog>
+<dialog id="dlg2">
+  <div class="dlg-head"><b id="dlg2Title"></b><button class="btn ghost sm" data-cerrar type="button">Cerrar</button></div>
+  <div class="dlg-body" id="dlg2Body"></div>
+  <div class="dlg-foot btn-row" id="dlg2Foot"></div>
+</dialog>
+
+<div class="update hidden" id="updBar" role="status">
+  <span><b>Nueva versión disponible</b>Tus registros se conservan.</span>
+  <button class="btn sm" type="button" id="updBtn">Actualizar</button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+const APP_VERSION = '1.1.0';
+
+/* =================== Utilidades =================== */
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2));
+const pad = (n, k=2) => String(n).padStart(k, '0');
+const hoy = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const ahora = () => { const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const isoLocal = () => { const d=new Date(), o=-d.getTimezoneOffset(), s=o>=0?'+':'-';
+  return `${hoy()}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}${s}${pad(Math.floor(Math.abs(o)/60))}:${pad(Math.abs(o)%60)}`; };
+const fechaLarga = f => { try{ return new Date(f+'T12:00:00').toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }catch(e){ return f; } };
+const fechaCorta = f => { try{ return new Date(f+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'short'}); }catch(e){ return f; } };
+/* Para nombres de archivo: sin acentos ni espacios */
+const limpio = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g,'').trim().replace(/\s+/g,'-').replace(/[^\w-]/g,'');
+const COLORES = ['#1d5f8a','#c0562b','#2f8a4e','#8a3fa0','#b88a12','#2a8a8a','#b23a5a','#5a6b77','#4a5fc1','#7a8a1a'];
+
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ toast('No hay espacio en el teléfono para guardar', true); return false; } }
+};
+const IDB = (() => {
+  let dbp;
+  const db = () => dbp || (dbp = new Promise((res, rej) => { const r = indexedDB.open('lab-practicas', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('fotos'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }));
+  const tx = (modo, fn) => db().then(d => new Promise((res, rej) => { const t = d.transaction('fotos', modo); const q = fn(t.objectStore('fotos'));
+    t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
+  return { get: k => tx('readonly', s => s.get(k)), put: (k, v) => tx('readwrite', s => s.put(v, k)), del: k => tx('readwrite', s => s.delete(k)) };
+})();
+
+let toastT;
+function toast(msg, error=false){
+  const t=$('#toast'); t.textContent=msg; t.classList.toggle('error', !!error); t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'), error?4200:2200);
+}
+
+/* =================== Datos =================== */
+// Catálogos: materias y prácticas. Registros: una fila por tratamiento × repetición (× individuo).
+let cat = LS.get('lab_cat', {materias:[], practicas:[]});
+let registros = LS.get('lab_reg', []);   // {id, practica_id, datos:{…}, vars:{}, fotos:[{id,nombre,url}], pend, sinc}
+let cola = LS.get('lab_cola', []);       // borrados pendientes de enviar: {tipo:'registro'|'foto', id}
+let ajustes = LS.get('lab_aj', {url:'', clave:'', nombre:'', hoja:''});
+let catSucio = LS.get('lab_cat_sucio', false);
+let syncInfo = LS.get('lab_sync', {ultimo:null, error:null});
+
+const COLS = ['fecha','hora','materia','clave_materia','practica_num','practica_titulo','tratamiento','repeticion','individuo',
+  'comentarios','n_fotos','fotos','descripcion_fotos','fotos_url','registrado_por','id_registro','id_practica','registrado_en','actualizado_en'];
+const COLS_CAT = {
+  materias: ['id_materia','nombre','clave','profesor','actualizado_en'],
+  practicas: ['id_practica','materia','clave_materia','numero','titulo','fecha','tratamientos','repeticiones','individuos','variables','descripcion','actualizado_en']
+};
+const ETIQ = {fecha:'Fecha',hora:'Hora',materia:'Materia',clave_materia:'Clave',practica_num:'Práctica',practica_titulo:'Título',tratamiento:'Tratamiento',
+  repeticion:'Repetición',individuo:'Individuo',comentarios:'Comentarios',n_fotos:'Fotos',registrado_por:'Registró',registrado_en:'Registrado',actualizado_en:'Actualizado'};
+
+const guardarReg = () => LS.set('lab_reg', registros);
+const guardarCola = () => LS.set('lab_cola', cola);
+function guardarCat(){ const ok = LS.set('lab_cat', cat); catSucio = true; LS.set('lab_cat_sucio', true); syncDiferido(); return ok; }
+
+const materiaPorId = id => cat.materias.find(m => m.id === id);
+const practicaPorId = id => cat.practicas.find(p => p.id === id);
+const regsDe = pid => registros.filter(r => r.practica_id === pid);
+const tratsDe = p => (p && p.tratamientos && p.tratamientos.length) ? p.tratamientos : ['Sin tratamiento'];
+const colorTrat = (p, t) => COLORES[Math.max(0, tratsDe(p).indexOf(t)) % COLORES.length];
+function nombrePrac(p, conMateria=true){
+  if(!p) return '—'; const m = materiaPorId(p.materia_id);
+  return `${conMateria && m ? (m.clave || m.nombre) + ' · ' : ''}Práctica ${p.numero}${p.titulo ? ' — ' + p.titulo : ''}`;
+}
+function pendientes(){
+  let n = cola.length;
+  registros.forEach(r => { if(r.pend) n++; n += r.fotos.filter(f => !f.url).length; });
+  return n;
+}
+/* Fila tal como se envía a Sheets / CSV */
+function filaDe(r){
+  const p = practicaPorId(r.practica_id), m = p && materiaPorId(p.materia_id);
+  const f = Object.assign({}, r.datos, {
+    materia: m ? m.nombre : r.datos.materia || '', clave_materia: m ? (m.clave||'') : r.datos.clave_materia || '',
+    practica_num: p ? String(p.numero) : r.datos.practica_num || '', practica_titulo: p ? (p.titulo||'') : r.datos.practica_titulo || '',
+    n_fotos: String(r.fotos.length), fotos: r.fotos.map(x => x.nombre).join(' | '),
+    descripcion_fotos: r.fotos.map((x, i) => x.nota ? `${pad(i+1)}: ${x.nota}` : '').filter(Boolean).join(' | '), fotos_url: r.fotos.map(x => x.url||'').filter(Boolean).join(' | '),
+    id_registro: r.id, id_practica: r.practica_id
+  });
+  Object.entries(r.vars || {}).forEach(([k, v]) => { f['var: ' + k] = v; });
+  return f;
+}
+const colsDe = filas => { const extra = new Set(); filas.forEach(f => Object.keys(f).forEach(k => { if(k.startsWith('var: ')) extra.add(k); })); return COLS.concat([...extra]); };
+
+/* =================== Navegación =================== */
+let vistaActual = 'inicio', pracActual = null;
+function ir(v, push=true){
+  if(v === 'practica' && !practicaPorId(pracActual)) v = 'inicio';
+  vistaActual = v;
+  $$('.view').forEach(s => s.classList.toggle('active', s.id === 'v-' + v));
+  const navV = v === 'practica' ? 'inicio' : v;
+  $$('#nav button').forEach(b => b.classList.toggle('on', b.dataset.go === navV));
+  if(push) history.pushState({v, p:pracActual}, '');
+  window.scrollTo(0, 0);
+  render();
+}
+window.addEventListener('popstate', e => {
+  const abierto = $$('dialog').filter(d => d.open).pop();
+  if(abierto){ abierto.close(); return; }
+  const s = e.state || {v:'inicio'}; pracActual = s.p || pracActual; ir(s.v || 'inicio', false);
+});
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]'); if(g){ if(g.dataset.go==='capturar' && cap.editId===null) cap.practica_id = cap.practica_id || pracActual; ir(g.dataset.go); return; }
+  const a = e.target.closest('[data-accion]'); if(a){ ({nuevaPrac:()=>dlgPractica(), nuevaMat:()=>dlgMateria()})[a.dataset.accion]?.(); }
+});
+function abrirDlg(d){ if(d.open) return; d.showModal(); history.pushState({v:vistaActual, p:pracActual, dlg:d.id}, ''); }
+function cerrarDlg(d){ if(!d.open) return; if(history.state && history.state.dlg === d.id) history.back(); else d.close(); }
+document.addEventListener('click', e => { const b = e.target.closest('[data-cerrar]'); if(b) cerrarDlg(b.closest('dialog')); });
+$$('dialog').forEach(d => {
+  d.addEventListener('cancel', e => { e.preventDefault(); cerrarDlg(d); });
+  d.addEventListener('click', e => { if(e.target === d) cerrarDlg(d); });
+});
+
+function render(){
+  renderSync();
+  if(vistaActual === 'inicio') renderInicio();
+  else if(vistaActual === 'practica') renderPractica();
+  else if(vistaActual === 'capturar') renderCaptura();
+  else if(vistaActual === 'registros') renderRegistros();
+  else if(vistaActual === 'ajustes') renderAjustes();
+}
+
+/* =================== Inicio =================== */
+const CHEV = '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>';
+function renderInicio(){
+  const t = fechaLarga(hoy()); $('#hoyTxt').textContent = t.charAt(0).toUpperCase() + t.slice(1);
+  $('#stPrac').textContent = cat.practicas.length; $('#stReg').textContent = registros.length; $('#stPend').textContent = pendientes();
+  if(!cat.materias.length){
+    $('#pracList').innerHTML = `<div class="card" style="margin-top:12px"><div class="empty"><b>Empieza por agregar una materia</b>Después crea cada práctica con sus tratamientos y repeticiones.</div>
+      <button class="btn primary block" type="button" data-accion="nuevaMat">+ Agregar materia</button></div>`;
+    return;
+  }
+  $('#pracList').innerHTML = cat.materias.map(m => {
+    const ps = cat.practicas.filter(p => p.materia_id === m.id).sort((a,b) => Number(b.numero) - Number(a.numero));
+    return `<div class="materia-h"><div><b>${esc(m.nombre)}</b><small>${esc(m.clave||'')}</small></div>
+      <button class="btn ghost sm" type="button" data-nprac="${m.id}">+ Práctica</button></div>
+      <div class="list">${ps.length ? ps.map(p => {
+        const rs = regsDe(p.id), nf = rs.reduce((s, r) => s + r.fotos.length, 0), celdas = tratsDe(p).length * (p.repeticiones||1);
+        const hechas = new Set(rs.map(r => r.datos.tratamiento + '|' + r.datos.repeticion)).size;
+        return `<button type="button" class="item" data-prac="${p.id}">
+          <span class="badge"><small>P</small>${esc(p.numero)}</span>
+          <span class="meta"><b>${esc(p.titulo || 'Práctica ' + p.numero)}</b>
+          <small>${p.fecha ? fechaCorta(p.fecha) + ' · ' : ''}${hechas}/${celdas} unidades · ${rs.length} registro${rs.length===1?'':'s'} · ${nf} foto${nf===1?'':'s'}</small></span>${CHEV}</button>`;
+      }).join('') : '<div class="hint" style="padding:4px 4px 8px">Sin prácticas todavía.</div>'}</div>`;
+  }).join('');
+}
+$('#pracList').addEventListener('click', e => {
+  const n = e.target.closest('[data-nprac]'); if(n){ dlgPractica(null, n.dataset.nprac); return; }
+  const b = e.target.closest('[data-prac]'); if(b){ pracActual = b.dataset.prac; ir('practica'); }
+});
+$('#btnNuevaPrac').addEventListener('click', () => dlgPractica());
+$('#btnNuevaMat').addEventListener('click', () => dlgMateria());
+
+/* =================== Materia (diálogo) =================== */
+function dlgMateria(id, alGuardar){
+  const m = id ? materiaPorId(id) : {nombre:'', clave:'', profesor:''};
+  const d = $('#dlg2');
+  $('#dlg2Title').textContent = id ? 'Editar materia' : 'Nueva materia';
+  $('#dlg2Body').innerHTML = `<div class="grid one" style="margin-top:0">
+    <label class="f">Nombre de la materia<input type="text" id="mNom" value="${esc(m.nombre)}" placeholder="Ej. Entomología agrícola"></label>
+    <label class="f">Clave o abreviatura<input type="text" id="mClave" value="${esc(m.clave)}" placeholder="Ej. ENT-601"><span class="hint">Se usa al inicio del nombre de cada foto.</span></label>
+    <label class="f">Profesor (opcional)<input type="text" id="mProf" value="${esc(m.profesor||'')}"></label></div>`;
+  const usadas = id ? cat.practicas.filter(p => p.materia_id === id).length : 0;
+  $('#dlg2Foot').innerHTML = (id ? `<button class="btn danger" type="button" id="mBorrar">Borrar</button>` : '') + `<button class="btn primary" type="button" id="mOk">Guardar</button>`;
+  $('#mOk').onclick = () => {
+    const nombre = $('#mNom').value.trim(); if(!nombre){ toast('Escribe el nombre de la materia', true); $('#mNom').focus(); return; }
+    const datos = {nombre, clave:$('#mClave').value.trim(), profesor:$('#mProf').value.trim()};
+    let nuevoId = id;
+    if(id) Object.assign(m, datos); else { nuevoId = uid(); cat.materias.push(Object.assign({id:nuevoId}, datos)); }
+    if(id) registros.forEach(r => { if(practicaPorId(r.practica_id)?.materia_id === id) r.pend = true; });
+    guardarCat(); guardarReg(); cerrarDlg(d); toast('Materia guardada');
+    render(); if(alGuardar) setTimeout(() => alGuardar(nuevoId), 120);
+  };
+  if(id) $('#mBorrar').onclick = () => {
+    if(usadas){ toast(`Tiene ${usadas} práctica${usadas===1?'':'s'}; bórralas primero`, true); return; }
+    if(!confirm(`¿Borrar la materia «${m.nombre}»?`)) return;
+    cat.materias = cat.materias.filter(x => x.id !== id); guardarCat(); cerrarDlg(d); render();
+  };
+  abrirDlg(d); if(!id) setTimeout(() => $('#mNom').focus(), 50);
+}
+
+/* =================== Práctica (diálogo) =================== */
+function dlgPractica(id, materiaId){
+  if(!cat.materias.length){ toast('Primero agrega una materia'); dlgMateria(null, mid => dlgPractica(null, mid)); return; }
+  const p = id ? practicaPorId(id) : null;
+  const ultimo = materia => Math.max(0, ...cat.practicas.filter(x => x.materia_id === materia).map(x => Number(x.numero)||0));
+  const st = {
+    materia_id: p ? p.materia_id : (materiaId || (practicaPorId(pracActual)?.materia_id) || cat.materias[0].id),
+    trats: p ? [...p.tratamientos] : [], vars: p ? [...(p.variables||[])] : []
+  };
+  const d = $('#dlg');
+  $('#dlgTitle').textContent = id ? 'Editar práctica' : 'Nueva práctica';
+  $('#dlgBody').innerHTML = `<div class="grid" style="margin-top:0">
+    <div class="f full">Materia<div class="inline"><select id="pMat"></select><button class="btn sm" type="button" id="pMatNueva">+ Nueva</button></div></div>
+    <label class="f">Número de práctica<input type="number" id="pNum" inputmode="numeric" min="1" value="${esc(p ? p.numero : '')}"></label>
+    <label class="f">Fecha<input type="date" id="pFecha" value="${esc(p ? p.fecha : hoy())}"></label>
+    <label class="f full">Título<input type="text" id="pTit" value="${esc(p ? p.titulo : '')}" placeholder="Ej. Ciclo de vida de Spodoptera frugiperda"></label>
+    <div class="f full">Tratamientos<div class="inline"><input type="text" id="pTratIn" placeholder="Ej. Testigo, T1, Dosis alta…"><button class="btn sm" type="button" id="pTratAdd">Agregar</button></div>
+      <div class="chips" id="pTrats"></div><span class="hint">Puedes pegar varios separados por coma.</span></div>
+    <label class="f">Repeticiones por tratamiento<input type="number" id="pRep" inputmode="numeric" min="1" max="50" value="${esc(p ? p.repeticiones : 3)}"></label>
+    <div class="f"><span>&nbsp;</span><label class="switch" style="min-height:48px">Individuos<input type="checkbox" id="pInd" ${p && p.individuos ? 'checked' : ''}></label></div>
+    <div class="full hint" style="margin-top:-6px">Activa «Individuos» si en cada repetición registras varios organismos o muestras por separado.</div>
+    <div class="f full">Variables a medir (opcional)<div class="inline"><input type="text" id="pVarIn" placeholder="Ej. Longitud (mm), Mortalidad, Color…"><button class="btn sm" type="button" id="pVarAdd">Agregar</button></div>
+      <div class="chips" id="pVars"></div><span class="hint">Cada variable se vuelve una columna en Excel.</span></div>
+    <label class="f full">Descripción u objetivo (opcional)<textarea id="pDesc">${esc(p ? p.descripcion : '')}</textarea></label></div>`;
+  const usada = p ? regsDe(p.id).length : 0;
+  $('#dlgFoot').innerHTML = (p ? `<button class="btn danger" type="button" id="pBorrar">Borrar</button>` : '') + `<button class="btn primary" type="button" id="pOk">Guardar práctica</button>`;
+
+  const llenarMat = () => { $('#pMat').innerHTML = cat.materias.map(m => `<option value="${m.id}" ${m.id===st.materia_id?'selected':''}>${esc(m.nombre)}${m.clave?' ('+esc(m.clave)+')':''}</option>`).join(''); };
+  const sugerirNum = () => { if(!p) $('#pNum').value = ultimo(st.materia_id) + 1; };
+  const lista = (sel, arr, colores) => { $(sel).innerHTML = arr.map((t, i) => `<span class="chip tag">${colores?`<span class="c" style="--c:${COLORES[i%COLORES.length]}"></span>`:''}${esc(t)}<button type="button" class="x" data-i="${i}" aria-label="Quitar ${esc(t)}">×</button></span>`).join(''); };
+  const pintar = () => { lista('#pTrats', st.trats, true); lista('#pVars', st.vars, false); };
+  const agregar = (inp, arr) => { $(inp).value.split(',').map(s => s.trim()).filter(Boolean).forEach(t => { if(!arr.includes(t)) arr.push(t); }); $(inp).value = ''; pintar(); $(inp).focus(); };
+  llenarMat(); sugerirNum(); pintar();
+  $('#pMat').onchange = e => { st.materia_id = e.target.value; sugerirNum(); };
+  $('#pMatNueva').onclick = () => dlgMateria(null, mid => { st.materia_id = mid; llenarMat(); sugerirNum(); });
+  $('#pTratAdd').onclick = () => agregar('#pTratIn', st.trats);
+  $('#pVarAdd').onclick = () => agregar('#pVarIn', st.vars);
+  $('#pTratIn').onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); agregar('#pTratIn', st.trats); } };
+  $('#pVarIn').onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); agregar('#pVarIn', st.vars); } };
+  $('#pTrats').onclick = e => { const x = e.target.closest('.x'); if(!x) return; const t = st.trats[x.dataset.i];
+    if(p && regsDe(p.id).some(r => r.datos.tratamiento === t) && !confirm(`Hay registros con «${t}». ¿Quitarlo de la lista? Los registros se conservan.`)) return;
+    st.trats.splice(x.dataset.i, 1); pintar(); };
+  $('#pVars').onclick = e => { const x = e.target.closest('.x'); if(x){ st.vars.splice(x.dataset.i, 1); pintar(); } };
+
+  $('#pOk').onclick = () => {
+    if($('#pTratIn').value.trim()) agregar('#pTratIn', st.trats);
+    if($('#pVarIn').value.trim()) agregar('#pVarIn', st.vars);
+    const numero = parseInt($('#pNum').value, 10), rep = parseInt($('#pRep').value, 10);
+    if(!(numero > 0)){ toast('Indica el número de práctica', true); $('#pNum').focus(); return; }
+    if(!(rep > 0 && rep <= 50)){ toast('Repeticiones: entre 1 y 50', true); $('#pRep').focus(); return; }
+    if(cat.practicas.some(x => x.id !== id && x.materia_id === st.materia_id && Number(x.numero) === numero)
+       && !confirm(`Ya existe la práctica ${numero} en esta materia. ¿Guardar de todos modos?`)) return;
+    const datos = {materia_id:st.materia_id, numero, titulo:$('#pTit').value.trim(), fecha:$('#pFecha').value, tratamientos:st.trats,
+      repeticiones:rep, individuos:$('#pInd').checked, variables:st.vars, descripcion:$('#pDesc').value.trim()};
+    let pid = id;
+    if(p){ Object.assign(p, datos); regsDe(p.id).forEach(r => r.pend = true); guardarReg(); }
+    else { pid = uid(); cat.practicas.push(Object.assign({id:pid, creada:isoLocal()}, datos)); }
+    guardarCat(); cerrarDlg(d); toast('Práctica guardada');
+    pracActual = pid; if(!p) setTimeout(() => ir('practica'), 60); else render();
+  };
+  if(p) $('#pBorrar').onclick = async () => {
+    if(!confirm(usada ? `La práctica tiene ${usada} registro${usada===1?'':'s'}. Se borrarán también del teléfono y de Google Sheets (las fotos van a la papelera de Drive). ¿Continuar?` : '¿Borrar esta práctica?')) return;
+    for(const r of regsDe(p.id)) await borrarRegistro(r.id, true);
+    cat.practicas = cat.practicas.filter(x => x.id !== p.id); guardarCat(); cerrarDlg(d);
+    pracActual = null; toast('Práctica borrada'); setTimeout(() => ir('inicio'), 60);
+  };
+  abrirDlg(d);
+}
+
+/* =================== Detalle de práctica =================== */
+function renderPractica(){
+  const p = practicaPorId(pracActual); if(!p) return;
+  const m = materiaPorId(p.materia_id), rs = regsDe(p.id), trats = tratsDe(p);
+  const nf = rs.reduce((s, r) => s + r.fotos.length, 0);
+  const celda = (t, k) => { const c = rs.filter(r => r.datos.tratamiento === t && String(r.datos.repeticion) === String(k));
+    const f = c.reduce((s, r) => s + r.fotos.length, 0);
+    return `<td><button type="button" class="${c.length?'has':''}" style="--c:${colorTrat(p,t)}" data-t="${esc(t)}" data-r="${k}" aria-label="${esc(t)}, repetición ${k}">${c.length ? (p.individuos ? c.length : '✓') + `<small>${f} foto${f===1?'':'s'}</small>` : '+'}</button></td>`; };
+  const extra = [...new Set(rs.map(r => r.datos.tratamiento).filter(t => !trats.includes(t)))];
+  $('#pracDet').innerHTML = `
+    <div class="card">
+      <div class="eyebrow">${esc(m ? m.nombre : '')}${m && m.clave ? ' · ' + esc(m.clave) : ''}</div>
+      <h2 style="margin-top:2px">Práctica ${esc(p.numero)}${p.titulo ? ' — ' + esc(p.titulo) : ''}</h2>
+      <div class="hint">${p.fecha ? esc(fechaLarga(p.fecha)) + ' · ' : ''}${trats.length} tratamiento${trats.length===1?'':'s'} × ${p.repeticiones} repeticion${p.repeticiones===1?'':'es'}${p.individuos ? ' · con individuos' : ''}</div>
+      ${p.descripcion ? `<p style="margin:10px 0 0;font-size:14px;white-space:pre-wrap">${esc(p.descripcion)}</p>` : ''}
+      ${p.variables && p.variables.length ? `<div class="chips" style="margin-top:10px">${p.variables.map(v => `<span class="chip tag static">${esc(v)}</span>`).join('')}</div>` : ''}
+      <div class="btn-row" style="margin-top:14px"><button class="btn primary" type="button" id="pdCapturar">Capturar</button><button class="btn" type="button" id="pdEditar">Editar</button></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Avance · toca una casilla para capturar</div>
+      <div class="matriz"><table><thead><tr><th></th>${Array.from({length:p.repeticiones}, (_, i) => `<th>R${i+1}</th>`).join('')}</tr></thead>
+      <tbody>${trats.concat(extra).map(t => `<tr><th class="t" style="--c:${colorTrat(p,t)}"><span class="c"></span>${esc(t)}</th>${Array.from({length:p.repeticiones}, (_, i) => celda(t, i+1)).join('')}</tr>`).join('')}</tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Excel y fotos</div>
+      <div class="hint" style="margin-bottom:10px">${rs.length} registro${rs.length===1?'':'s'} · ${nf} foto${nf===1?'':'s'}</div>
+      <div class="btn-row"><button class="btn sm" type="button" id="pdCsv">Exportar CSV</button><button class="btn sm" type="button" id="pdFotos">Compartir fotos</button></div>
+    </div>
+    <div class="group-h"><span>Registros</span></div>
+    <div class="list" id="pdList">${listaHTML(rs.slice().sort(ordenReg))}</div>`;
+  $('#pdCapturar').onclick = () => { iniciarCaptura(p.id); ir('capturar'); };
+  $('#pdEditar').onclick = () => dlgPractica(p.id);
+  $('#pdCsv').onclick = () => exportarCsv(rs, `${limpio(m ? (m.clave||m.nombre) : 'lab')}_P${pad(p.numero)}`);
+  $('#pdFotos').onclick = () => compartirFotos(rs);
+  $('.matriz').onclick = e => { const b = e.target.closest('button[data-t]'); if(!b) return;
+    // Repetición ya registrada: se abre ese registro para ver sus fotos y agregar más
+    const ya = !p.individuos && rs.find(r => r.datos.tratamiento === b.dataset.t && String(r.datos.repeticion) === b.dataset.r);
+    if(ya){ editarRegistro(ya.id); return; }
+    iniciarCaptura(p.id, b.dataset.t, Number(b.dataset.r)); ir('capturar'); };
+  $('#pdList').onclick = e => { const b = e.target.closest('[data-reg]'); if(b) dlgRegistro(b.dataset.reg); };
+  pintarMiniaturas($('#pdList'));
+}
+const ordenReg = (a, b) => {
+  const p = practicaPorId(a.practica_id), ta = tratsDe(p).indexOf(a.datos.tratamiento), tb = tratsDe(p).indexOf(b.datos.tratamiento);
+  return (ta - tb) || (Number(a.datos.repeticion) - Number(b.datos.repeticion)) || (Number(a.datos.individuo||0) - Number(b.datos.individuo||0));
+};
+const SYNC_OK = '<svg class="sync-ic" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>';
+const SYNC_PEND = '<svg class="sync-ic" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>';
+function listaHTML(rs){
+  if(!rs.length) return '<div class="empty"><b>Sin registros</b>Toca «Capturar» o una casilla del avance.</div>';
+  return rs.map(r => {
+    const p = practicaPorId(r.practica_id), d = r.datos, pend = r.pend || r.fotos.some(f => !f.url);
+    const vars = Object.entries(r.vars||{}).filter(([,v]) => v !== '').map(([k, v]) => `${k}: ${v}`).join(' · ');
+    return `<button type="button" class="item" data-reg="${r.id}">
+      ${r.fotos.length ? `<img class="thumb" data-foto="${r.fotos[0].id}" alt="">` : ''}
+      <span class="badge" style="--c:${colorTrat(p, d.tratamiento)}"><small>R</small>${esc(d.repeticion)}</span>
+      <span class="meta"><b>${esc(d.tratamiento)} · R${esc(d.repeticion)}${d.individuo ? ' · I' + esc(d.individuo) : ''}</b>
+      <small>${esc(fechaCorta(d.fecha))} ${esc(d.hora)} · ${r.fotos.length} foto${r.fotos.length===1?'':'s'}${vars ? ' · ' + esc(vars) : ''}${d.comentarios ? ' · ' + esc(d.comentarios) : ''}</small></span>
+      ${pend ? SYNC_PEND : SYNC_OK}</button>`;
+  }).join('');
+}
+/* Miniaturas desde la memoria del teléfono */
+const urlsMini = new Map();
+async function urlFoto(id){
+  if(urlsMini.has(id)) return urlsMini.get(id);
+  try{ const f = await IDB.get(id); if(!f) return null; const u = URL.createObjectURL(f.blob); urlsMini.set(id, u); return u; }catch(e){ return null; }
+}
+function pintarMiniaturas(cont){
+  cont.querySelectorAll('img[data-foto]').forEach(async img => { const u = await urlFoto(img.dataset.foto); if(u) img.src = u; else img.style.visibility = 'hidden'; });
+}
+
+/* =================== Captura =================== */
+let cap = {practica_id:null, trat:null, rep:1, ind:1, fotos:[], editId:null};
+// cap.fotos: {id, blob?, nombre?, url?, nueva:bool}
+function iniciarCaptura(pid, trat, rep){
+  if(cap.editId !== null) salirEdicion(false);
+  const p = practicaPorId(pid); cap.practica_id = pid;
+  cap.trat = trat || (cap.trat && tratsDe(p).includes(cap.trat) ? cap.trat : tratsDe(p)[0]);
+  cap.rep = rep || (cap.rep <= (p ? p.repeticiones : 1) ? cap.rep : 1);
+  if(p && p.individuos) cap.ind = siguienteInd(p, cap.trat, cap.rep);
+}
+function siguienteInd(p, t, r){
+  return 1 + Math.max(0, ...regsDe(p.id).filter(x => x.datos.tratamiento === t && String(x.datos.repeticion) === String(r)).map(x => Number(x.datos.individuo)||0));
+}
+function baseNombre(){
+  const p = practicaPorId(cap.practica_id); if(!p) return '';
+  const m = materiaPorId(p.materia_id);
+  return [limpio(m ? (m.clave || m.nombre) : 'LAB'), 'P' + pad(p.numero), limpio(cap.trat), 'R' + cap.rep].concat(p.individuos ? ['I' + pad(cap.ind)] : []).join('_');
+}
+function renderCaptura(){
+  if(!cat.practicas.length){ $('#capVacio').classList.remove('hidden'); $('#capForm').classList.add('hidden'); return; }
+  $('#capVacio').classList.add('hidden'); $('#capForm').classList.remove('hidden');
+  if(!practicaPorId(cap.practica_id)) iniciarCaptura((practicaPorId(pracActual) || cat.practicas[cat.practicas.length-1]).id);
+  const p = practicaPorId(cap.practica_id), trats = tratsDe(p);
+  $('#capEdit').classList.toggle('hidden', cap.editId === null);
+  $('#capEdit span').textContent = `Registro existente · ${cap.trat} · R${cap.rep}${p.individuos ? ' · I' + cap.ind : ''} — agrega o quita fotos`;
+  $('#btnGuardar').textContent = cap.editId !== null ? 'Guardar cambios' : 'Guardar registro';
+  const ordenadas = cat.materias.map(m => [m, cat.practicas.filter(x => x.materia_id === m.id).sort((a,b) => Number(b.numero) - Number(a.numero))]).filter(([, ps]) => ps.length);
+  $('#cPrac').innerHTML = ordenadas.map(([m, ps]) => `<optgroup label="${esc(m.nombre)}">${ps.map(x => `<option value="${x.id}" ${x.id===p.id?'selected':''}>Práctica ${esc(x.numero)}${x.titulo?' — '+esc(x.titulo):''}</option>`).join('')}</optgroup>`).join('');
+  $('#cPrac').disabled = cap.editId !== null;
+  $('#cPracInfo').textContent = `${trats.length} tratamiento${trats.length===1?'':'s'} × ${p.repeticiones} repeticion${p.repeticiones===1?'':'es'}${p.individuos ? ' · por individuo' : ''}`;
+  const lista = trats.includes(cap.trat) ? trats : trats.concat([cap.trat]);
+  $('#cTrat').innerHTML = lista.map(t => `<button type="button" class="chip ${t===cap.trat?'on':''}" data-t="${esc(t)}"><span class="c" style="--c:${colorTrat(p,t)}"></span>${esc(t)}</button>`).join('');
+  const reps = Math.max(p.repeticiones, Number(cap.rep)||1);
+  const hecho = k => regsDe(p.id).some(r => r.id !== cap.editId && r.datos.tratamiento === cap.trat && String(r.datos.repeticion) === String(k));
+  $('#cRep').innerHTML = Array.from({length:reps}, (_, i) => i+1).map(k => `<button type="button" class="chip num ${k===cap.rep?'on':''}" data-r="${k}">${k}${hecho(k) && !p.individuos ? ' ✓' : ''}</button>`).join('');
+  $('#cIndRow').classList.toggle('hidden', !p.individuos);
+  $('#cInd').value = cap.ind;
+  // Variables
+  const vars = p.variables || [];
+  $('#cVarsCard').classList.toggle('hidden', !vars.length);
+  const previas = {}; $$('#cVars input').forEach(i => previas[i.dataset.v] = i.value);
+  if($('#cVars').dataset.p !== p.id + '|' + vars.join('|') + '|' + cap.editId){
+    const reg = cap.editId ? registros.find(r => r.id === cap.editId) : null;
+    $('#cVars').innerHTML = vars.map(v => `<label class="f">${esc(v)}<input type="text" data-v="${esc(v)}" value="${esc(reg ? (reg.vars||{})[v] ?? '' : previas[v] ?? '')}"></label>`).join('');
+    $('#cVars').dataset.p = p.id + '|' + vars.join('|') + '|' + cap.editId;
+  }
+  renderFotosCap();
+  // Recientes de esta práctica
+  const rec = regsDe(p.id).slice().sort((a, b) => (b.datos.registrado_en||'').localeCompare(a.datos.registrado_en||'')).slice(0, 5);
+  $('#cRecientes').innerHTML = `<div class="card-head"><div class="eyebrow">Últimos de esta práctica</div><button class="btn ghost sm" type="button" data-go="practica">Ver avance</button></div>
+    <div class="list" style="margin-top:10px">${listaHTML(rec)}</div>`;
+  pracActual = p.id;
+  pintarMiniaturas($('#cRecientes'));
+}
+/* Nombres provisionales de las fotos nuevas, sin repetir los ya usados en el registro */
+function nombresFotos(){
+  const base = baseNombre(), usados = new Set(cap.fotos.filter(f => f.nombre).map(f => f.nombre));
+  let k = 1;
+  return cap.fotos.map(f => { if(f.nombre) return f.nombre; while(usados.has(`${base}_${pad(k)}.jpg`)) k++; const n = `${base}_${pad(k)}.jpg`; usados.add(n); return n; });
+}
+function renderFotosCap(){
+  const n = cap.fotos.length, nombres = nombresFotos();
+  $('#cFotosN').textContent = n ? `${n} foto${n===1?'':'s'}` : '';
+  $('#fCamTxt').textContent = n ? 'Otra foto' : 'Cámara';
+  $('#cNombreBox').classList.toggle('hidden', n > 0);
+  $('#cNombre').textContent = `${baseNombre()}_01.jpg`;
+  const enFoco = document.activeElement?.closest('#cFotos') ? document.activeElement.dataset.n : null;
+  $('#cFotos').innerHTML = cap.fotos.map((f, i) => `<div class="foto-it">
+    <div class="foto">${f.src ? `<img src="${f.src}" alt="Foto ${i+1}">` : f.url ? `<a class="drive" href="${esc(f.url)}" target="_blank" rel="noopener">Ver en Drive</a>` : '<span class="drive">Sin vista previa</span>'}<span class="n">${i+1}</span></div>
+    <div class="meta"><code>${esc(nombres[i])}</code><input type="text" data-n="${i}" value="${esc(f.nota||'')}" placeholder="Descripción (opcional): vista general, detalle…" aria-label="Descripción de la foto ${i+1}"></div>
+    <button type="button" class="quitar" data-i="${i}" aria-label="Quitar foto ${i+1}">×</button></div>`).join('');
+  if(enFoco !== null) $(`#cFotos input[data-n="${enFoco}"]`)?.focus();
+}
+$('#cPrac').addEventListener('change', e => { iniciarCaptura(e.target.value); renderCaptura(); });
+$('#cTrat').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if(!b) return; cap.trat = b.dataset.t;
+  const p = practicaPorId(cap.practica_id); if(p.individuos && cap.editId === null) cap.ind = siguienteInd(p, cap.trat, cap.rep); renderCaptura(); });
+$('#cRep').addEventListener('click', e => { const b = e.target.closest('[data-r]'); if(!b) return; cap.rep = Number(b.dataset.r);
+  const p = practicaPorId(cap.practica_id); if(p.individuos && cap.editId === null) cap.ind = siguienteInd(p, cap.trat, cap.rep); renderCaptura(); });
+$('#iMenos').addEventListener('click', () => { cap.ind = Math.max(1, cap.ind - 1); renderCaptura(); });
+$('#iMas').addEventListener('click', () => { cap.ind++; renderCaptura(); });
+$('#cInd').addEventListener('change', e => { const n = parseInt(e.target.value, 10); cap.ind = n > 0 ? n : 1; renderCaptura(); });
+
+/* Las fotos se reducen a 2000 px (JPEG) para no llenar el teléfono ni Drive */
+async function comprimir(file){
+  const url = URL.createObjectURL(file);
+  try{
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const k = Math.min(1, 2000 / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return await new Promise(res => c.toBlob(res, 'image/jpeg', 0.85));
+  } finally { URL.revokeObjectURL(url); }
+}
+async function agregarFotos(files){
+  for(const f of files){
+    try{ const blob = await comprimir(f); cap.fotos.push({id:uid(), blob, src:URL.createObjectURL(blob), nueva:true}); }
+    catch(e){ toast('No se pudo leer una foto', true); }
+  }
+  renderFotosCap();
+}
+['#fCam', '#fGal'].forEach(s => $(s).addEventListener('change', e => { const fs = [...e.target.files]; e.target.value = ''; if(fs.length) agregarFotos(fs); }));
+$('#cFotos').addEventListener('input', e => { const i = e.target.dataset.n; if(i != null && cap.fotos[i]) cap.fotos[i].nota = e.target.value; });
+$('#cFotos').addEventListener('click', e => {
+  const x = e.target.closest('.quitar'); if(x){ const f = cap.fotos[x.dataset.i];
+    if(!f.nueva && !confirm('¿Quitar esta foto del registro? Si ya está en Drive, se enviará a la papelera.')) return;
+    if(f.nueva && f.src) URL.revokeObjectURL(f.src); cap.fotos.splice(x.dataset.i, 1); renderFotosCap(); return; }
+  const img = e.target.closest('.foto img'); if(img) verFoto(img.src, '');
+});
+
+function limpiarCaptura(){
+  cap.fotos.forEach(f => { if(f.nueva && f.src) URL.revokeObjectURL(f.src); });
+  cap.fotos = []; $('#cCom').value = ''; $$('#cVars input').forEach(i => i.value = '');
+}
+function salirEdicion(rend=true){ cap.editId = null; limpiarCaptura(); $('#cVars').dataset.p = ''; if(rend) renderCaptura(); }
+$('#capCancelarEd').addEventListener('click', () => { const pid = cap.practica_id; salirEdicion(false); iniciarCaptura(pid); renderCaptura(); });
+
+$('#btnGuardar').addEventListener('click', async () => {
+  const p = practicaPorId(cap.practica_id); if(!p) return;
+  const vars = {}; $$('#cVars input').forEach(i => vars[i.dataset.v] = i.value.trim());
+  const com = $('#cCom').value.trim();
+  if(!cap.fotos.length && !com && !Object.values(vars).some(Boolean)){ toast('Agrega al menos una foto, un comentario o una variable', true); return; }
+  const enEdicion = cap.editId !== null;
+  let edit = enEdicion ? registros.find(r => r.id === cap.editId) : null, comFinal = com;
+  const dup = regsDe(p.id).find(r => r !== edit && r.datos.tratamiento === cap.trat && String(r.datos.repeticion) === String(cap.rep)
+    && (!p.individuos || String(r.datos.individuo) === String(cap.ind)));
+  const unidad = `${cap.trat} · R${cap.rep}${p.individuos ? ' · I' + cap.ind : ''}`;
+  if(dup && enEdicion && !confirm(`Ya hay otro registro de ${unidad}. ¿Guardar de todos modos?`)) return;
+  if(dup && !enEdicion){
+    // Misma repetición ya registrada: las fotos nuevas se vinculan a ese registro
+    if(!confirm(`${unidad} ya tiene ${dup.fotos.length} foto${dup.fotos.length===1?'':'s'}. ¿Agregar estas ${cap.fotos.length} foto${cap.fotos.length===1?'':'s'} y comentarios a ese mismo registro?`)) return;
+    edit = dup;
+    cap.fotos = dup.fotos.map(f => Object.assign({}, f, {nueva:false})).concat(cap.fotos);
+    if(dup.datos.comentarios && dup.datos.comentarios !== com) comFinal = [dup.datos.comentarios, com].filter(Boolean).join('\n');
+    Object.keys(vars).forEach(k => { if(!vars[k] && dup.vars && dup.vars[k]) vars[k] = dup.vars[k]; });
+  }
+
+  const id = edit ? edit.id : uid();
+  // Nombres de las fotos nuevas, sin repetir los ya usados en este registro
+  const nombres = nombresFotos(); cap.fotos.forEach((f, i) => { if(!f.nombre) f.nombre = nombres[i]; });
+  try{ for(const f of cap.fotos.filter(f => f.nueva)) await IDB.put(f.id, {blob:f.blob, nombre:f.nombre}); }
+  catch(e){ toast('No se pudieron guardar las fotos en el teléfono', true); return; }
+  const fotos = cap.fotos.map(f => ({id:f.id, nombre:f.nombre, url:f.url || '', nota:(f.nota||'').trim()}));
+  const datos = {
+    fecha: edit ? edit.datos.fecha : hoy(), hora: edit ? edit.datos.hora : ahora(),
+    tratamiento: cap.trat, repeticion: String(cap.rep), individuo: p.individuos ? String(cap.ind) : '',
+    comentarios: comFinal, registrado_por: edit ? edit.datos.registrado_por : (ajustes.nombre || ''),
+    registrado_en: edit ? edit.datos.registrado_en : isoLocal(), actualizado_en: edit ? isoLocal() : ''
+  };
+  if(edit){
+    const quitadas = edit.fotos.filter(f => !fotos.some(x => x.id === f.id));
+    for(const f of quitadas){ if(f.url) cola.push({tipo:'foto', id:f.id}); IDB.del(f.id).catch(() => {}); }
+    Object.assign(edit, {datos, vars, fotos, pend:true}); guardarCola();
+  } else registros.push({id, practica_id:p.id, datos, vars, fotos, pend:true, sinc:null});
+  if(!guardarReg()) return;
+  navigator.vibrate?.([20, 40, 20]);
+  toast(`${enEdicion ? 'Cambios guardados' : edit ? 'Fotos agregadas' : 'Guardado'} · ${unidad} · ${fotos.length} foto${fotos.length===1?'':'s'} en total`);
+  if(enEdicion){ salirEdicion(false); pracActual = p.id; ir('practica'); syncDiferido(); return; }
+  limpiarCaptura();
+  // Avanzar a la siguiente unidad
+  if(p.individuos) cap.ind++;
+  else { const ts = tratsDe(p);
+    if(cap.rep < p.repeticiones) cap.rep++;
+    else { cap.rep = 1; const i = ts.indexOf(cap.trat); if(i >= 0 && i < ts.length - 1) cap.trat = ts[i+1]; } }
+  renderCaptura(); window.scrollTo({top:0, behavior:'smooth'});
+  syncDiferido();
+});
+
+async function editarRegistro(id){
+  const r = registros.find(x => x.id === id); if(!r) return;
+  limpiarCaptura();
+  cap.editId = id; cap.practica_id = r.practica_id; cap.trat = r.datos.tratamiento; cap.rep = Number(r.datos.repeticion) || 1; cap.ind = Number(r.datos.individuo) || 1;
+  cap.fotos = await Promise.all(r.fotos.map(async f => ({id:f.id, nombre:f.nombre, url:f.url, nota:f.nota||'', src: await urlFoto(f.id), nueva:false})));
+  $('#cCom').value = r.datos.comentarios || '';
+  $('#cVars').dataset.p = '';
+  ir('capturar');
+}
+
+/* =================== Registro (detalle) =================== */
+function dlgRegistro(id){
+  const r = registros.find(x => x.id === id); if(!r) return;
+  const p = practicaPorId(r.practica_id), f = filaDe(r);
+  const d = $('#dlg');
+  $('#dlgTitle').textContent = `${r.datos.tratamiento} · R${r.datos.repeticion}${r.datos.individuo ? ' · I' + r.datos.individuo : ''}`;
+  const kv = ['materia','practica_num','practica_titulo','tratamiento','repeticion','individuo','fecha','hora','comentarios','registrado_por','actualizado_en']
+    .filter(k => f[k]).map(k => `<dt>${ETIQ[k]}</dt><dd>${esc(k==='fecha' ? fechaLarga(f[k]) : f[k])}</dd>`).join('')
+    + Object.entries(r.vars||{}).filter(([,v]) => v !== '').map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
+  const pend = r.pend || r.fotos.some(x => !x.url);
+  $('#dlgBody').innerHTML = `${r.fotos.length ? `<div class="fotos" style="margin-top:0;margin-bottom:14px">${r.fotos.map((x, i) =>
+      `<div><div class="foto"><img data-foto="${x.id}" alt="Foto ${i+1}" data-nombre="${esc(x.nombre + (x.nota ? ' — ' + x.nota : ''))}">${x.url ? `<a class="n" href="${esc(x.url)}" target="_blank" rel="noopener" style="text-decoration:none">Drive ↗</a>` : `<span class="n">${i+1}</span>`}</div>${x.nota ? `<div class="hint" style="margin-top:4px">${esc(x.nota)}</div>` : ''}</div>`).join('')}</div>` : ''}
+    <dl class="kv">${kv}</dl>
+    <div class="note" style="margin:14px 0 0">${pend ? 'Pendiente de enviar a Google Sheets.' : 'Enviado a Google Sheets.'}${r.fotos.length ? '<br>Fotos: ' + r.fotos.map(x => esc(x.nombre)).join(', ') : ''}</div>`;
+  $('#dlgFoot').innerHTML = `<button class="btn danger" type="button" id="rBorrar">Borrar</button><button class="btn primary" type="button" id="rEditar">Agregar fotos / editar</button>`;
+  $('#dlgBody').querySelectorAll('img[data-foto]').forEach(async img => { const u = await urlFoto(img.dataset.foto);
+    if(u){ img.src = u; img.onclick = () => verFoto(u, img.dataset.nombre); } else { img.replaceWith(Object.assign(document.createElement('span'), {className:'drive', textContent:'En Drive'})); } });
+  $('#rEditar').onclick = () => { cerrarDlg(d); setTimeout(() => editarRegistro(id), 60); };
+  $('#rBorrar').onclick = async () => {
+    if(!confirm('¿Borrar este registro? También se quitará de Google Sheets y sus fotos irán a la papelera de Drive.')) return;
+    await borrarRegistro(id); cerrarDlg(d); toast('Registro borrado'); setTimeout(render, 60); syncDiferido();
+  };
+  abrirDlg(d);
+}
+async function borrarRegistro(id, silencioso){
+  const r = registros.find(x => x.id === id); if(!r) return;
+  if(r.sinc || r.fotos.some(f => f.url)) cola.push({tipo:'registro', id});
+  for(const f of r.fotos) await IDB.del(f.id).catch(() => {});
+  registros = registros.filter(x => x.id !== id); guardarReg(); guardarCola();
+  if(cap.editId === id) salirEdicion(false);
+}
+function verFoto(src, nombre){
+  const v = document.createElement('div'); v.className = 'visor'; v.innerHTML = `<img src="${src}" alt=""><span>${esc(nombre)}</span>`;
+  v.onclick = () => v.remove(); document.body.appendChild(v);
+}
+
+/* =================== Lista de registros =================== */
+function renderRegistros(){
+  const sel = $('#rFiltro').value;
+  $('#rFiltro').innerHTML = `<option value="">Todas las prácticas (${registros.length})</option>` + cat.practicas.map(p =>
+    `<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(nombrePrac(p))} (${regsDe(p.id).length})</option>`).join('');
+  const q = $('#rBuscar').value.trim().toLowerCase(), filtro = $('#rFiltro').value;
+  let rs = registros.filter(r => !filtro || r.practica_id === filtro);
+  if(q) rs = rs.filter(r => JSON.stringify(filaDe(r)).toLowerCase().includes(q));
+  const grupos = new Map();
+  rs.forEach(r => { if(!grupos.has(r.practica_id)) grupos.set(r.practica_id, []); grupos.get(r.practica_id).push(r); });
+  $('#rList').innerHTML = rs.length ? [...grupos].map(([pid, g]) => `<div class="group-h"><span>${esc(nombrePrac(practicaPorId(pid)))}</span><span>${g.length}</span></div>${listaHTML(g.sort(ordenReg))}`).join('')
+    : '<div class="empty"><b>Sin registros</b>Los registros aparecen aquí al capturarlos.</div>';
+  pintarMiniaturas($('#rList'));
+}
+$('#rFiltro').addEventListener('change', renderRegistros);
+$('#rBuscar').addEventListener('input', renderRegistros);
+$('#rList').addEventListener('click', e => { const b = e.target.closest('[data-reg]'); if(b) dlgRegistro(b.dataset.reg); });
+
+/* =================== Excel (CSV) y fotos =================== */
+const csvQ = v => { const s = String(v ?? ''); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+async function compartirArchivos(files){
+  try{ if(navigator.canShare && navigator.canShare({files})){ await navigator.share({files}); return; } }
+  catch(e){ if(e.name === 'AbortError') return; }
+  for(const f of files){
+    const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    await new Promise(r => setTimeout(r, 300));
+  }
+}
+function exportarCsv(rs, nombre){
+  if(!rs.length){ toast('No hay registros que exportar', true); return; }
+  const filas = rs.slice().sort((a, b) => (a.practica_id === b.practica_id ? ordenReg(a, b) : 0)).map(filaDe), cols = colsDe(filas);
+  const texto = '﻿' + [cols.join(','), ...filas.map(f => cols.map(c => csvQ(f[c])).join(','))].join('\r\n');
+  compartirArchivos([new File([texto], `${nombre}_${hoy().replace(/-/g,'')}.csv`, {type:'text/csv'})]);
+}
+$('#btnCsv').addEventListener('click', () => {
+  const filtro = $('#rFiltro').value, p = practicaPorId(filtro), m = p && materiaPorId(p.materia_id);
+  exportarCsv(filtro ? regsDe(filtro) : registros, p ? `${limpio(m ? (m.clave||m.nombre) : 'lab')}_P${pad(p.numero)}` : 'practicas_laboratorio');
+});
+async function compartirFotos(rs){
+  const files = [];
+  for(const r of rs.slice().sort(ordenReg)) for(const f of r.fotos){ const x = await IDB.get(f.id).catch(() => null); if(x) files.push(new File([x.blob], f.nombre, {type:'image/jpeg'})); }
+  if(!files.length){ toast('No hay fotos guardadas en este teléfono', true); return; }
+  compartirArchivos(files);
+}
+
+/* =================== Google Sheets =================== */
+let sincronizando = false, syncT;
+function syncDiferido(){ clearTimeout(syncT); syncT = setTimeout(() => sincronizar(true), 1500); }
+async function llamarScript(cuerpo){
+  const r = await fetch(ajustes.url, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(Object.assign({clave:ajustes.clave}, cuerpo)), redirect:'follow'});
+  const t = await r.text();
+  let j; try{ j = JSON.parse(t); }catch(e){ throw new Error('Respuesta inesperada del script (¿URL correcta y acceso «Cualquier usuario»?)'); }
+  if(!j.ok) throw new Error(j.error || 'Error del script');
+  return j;
+}
+const blobABase64 = b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.onerror = rej; fr.readAsDataURL(b); });
+function filasCatalogo(){
+  const t = isoLocal();
+  return {
+    materias: cat.materias.map(m => ({id_materia:m.id, nombre:m.nombre, clave:m.clave||'', profesor:m.profesor||'', actualizado_en:t})),
+    practicas: cat.practicas.map(p => { const m = materiaPorId(p.materia_id); return {id_practica:p.id, materia:m?m.nombre:'', clave_materia:m?(m.clave||''):'',
+      numero:String(p.numero), titulo:p.titulo||'', fecha:p.fecha||'', tratamientos:(p.tratamientos||[]).join(' | '), repeticiones:String(p.repeticiones),
+      individuos:p.individuos?'sí':'no', variables:(p.variables||[]).join(' | '), descripcion:p.descripcion||'', actualizado_en:t}; })
+  };
+}
+function carpetaDe(r){
+  const p = practicaPorId(r.practica_id), m = p && materiaPorId(p.materia_id);
+  return [m ? (m.clave ? `${m.clave} – ${m.nombre}` : m.nombre) : 'Sin materia', p ? `Práctica ${pad(p.numero)}${p.titulo ? ' – ' + p.titulo : ''}` : 'Sin práctica'];
+}
+async function sincronizar(silencioso=false){
+  if(sincronizando) return;
+  if(!ajustes.url){ if(!silencioso) toast('Conecta Google Sheets en Ajustes', true); renderSync(); return; }
+  if(!pendientes() && !catSucio){ if(!silencioso) toast('Todo está enviado'); renderSync(); return; }
+  if(!navigator.onLine){ if(!silencioso) toast('Sin conexión: se enviará después', true); return; }
+  sincronizando = true; renderSync('busy');
+  let nReg = 0, nFotos = 0;
+  try{
+    if(catSucio){
+      const f = filasCatalogo();
+      for(const tipo of Object.keys(COLS_CAT)) await llamarScript({accion:'catalogo', tipo, columnas:COLS_CAT[tipo], filas:f[tipo]});
+      catSucio = false; LS.set('lab_cat_sucio', false);
+    }
+    while(cola.length){ await llamarScript(Object.assign({accion:'borrar'}, cola[0])); cola.shift(); guardarCola(); }
+    for(const r of registros) for(const f of r.fotos.filter(x => !x.url)){
+      const x = await IDB.get(f.id);
+      if(!x){ f.url = '(no disponible)'; r.pend = true; guardarReg(); continue; }
+      const j = await llamarScript({accion:'foto', id_foto:f.id, id_registro:r.id, nombre:f.nombre, descripcion:f.nota||'', carpeta:carpetaDe(r), mime:'image/jpeg', datos: await blobABase64(x.blob)});
+      f.url = j.url || ''; r.pend = true; nFotos++; guardarReg();
+    }
+    const pend = registros.filter(r => r.pend);
+    for(let i = 0; i < pend.length; i += 100){
+      const parte = pend.slice(i, i + 100), filas = parte.map(filaDe);
+      const notas = {}; parte.forEach(r => r.fotos.forEach(f => { if(f.url) notas[f.id] = f.nota || ''; }));
+      const j = await llamarScript({accion:'guardar', columnas:colsDe(filas), filas, notas});
+      const ok = new Set((j.ids||[]).map(String)), t = new Date().toISOString();
+      parte.forEach(r => { if(ok.has(String(r.id))){ r.pend = false; r.sinc = t; nReg++; } });
+      guardarReg();
+    }
+    syncInfo = {ultimo:new Date().toISOString(), error:null};
+    if(!silencioso || nReg || nFotos) toast(`Enviado a Google Sheets: ${nReg} registro${nReg===1?'':'s'}${nFotos ? `, ${nFotos} foto${nFotos===1?'':'s'}` : ''}`);
+  }catch(e){
+    syncInfo.error = e.message || 'Sin respuesta';
+    if(!silencioso) toast('No se pudo enviar: ' + syncInfo.error, true);
+  }finally{
+    LS.set('lab_sync', syncInfo); sincronizando = false; render();
+  }
+}
+function renderSync(estado){
+  const n = pendientes(), pill = $('#syncPill');
+  pill.className = 'pill ' + (estado === 'busy' ? 'pend busy' : !ajustes.url ? '' : syncInfo.error && n ? 'err' : n ? 'pend' : 'ok');
+  $('#syncText').textContent = estado === 'busy' ? 'Enviando…' : !ajustes.url ? 'Sin conectar' : n ? `${n} por enviar` : 'Al día';
+}
+$('#syncPill').addEventListener('click', () => sincronizar(false));
+$('#btnSyncRec').addEventListener('click', () => sincronizar(false));
+window.addEventListener('online', () => sincronizar(true));
+
+/* =================== Ajustes =================== */
+function renderAjustes(){
+  $('#appVer').textContent = APP_VERSION;
+  $('#aMaterias').innerHTML = cat.materias.length ? cat.materias.map(m => { const n = cat.practicas.filter(p => p.materia_id === m.id).length;
+    return `<button type="button" class="item" data-mat="${m.id}"><span class="badge ic" style="font-size:12px">${esc((m.clave || m.nombre).slice(0, 4))}</span>
+      <span class="meta"><b>${esc(m.nombre)}</b><small>${n} práctica${n===1?'':'s'}${m.profesor ? ' · ' + esc(m.profesor) : ''}</small></span>${CHEV}</button>`; }).join('')
+    : '<div class="hint">Aún no hay materias.</div>';
+  if(document.activeElement?.closest('#v-ajustes') == null){ $('#aUrl').value = ajustes.url; $('#aClave').value = ajustes.clave; $('#aNombre').value = ajustes.nombre; }
+  const n = pendientes();
+  $('#aSyncEstado').innerHTML = !ajustes.url ? 'Sin conectar. Sigue las instrucciones del archivo <b>LEEME</b> para crear la hoja y pegar aquí la URL.'
+    : `${n ? `${n} elemento${n===1?'':'s'} por enviar.` : 'Todo enviado.'}${syncInfo.ultimo ? ` Último envío: ${new Date(syncInfo.ultimo).toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'})}.` : ''}${syncInfo.error ? `<br>Último error: ${esc(syncInfo.error)}` : ''}`;
+  $('#aAbrirHoja').classList.toggle('hidden', !ajustes.hoja); if(ajustes.hoja) $('#aAbrirHoja').href = ajustes.hoja;
+  const enTel = registros.reduce((s, r) => s + r.fotos.length, 0);
+  $('#aEspacio').textContent = `${enTel} foto${enTel===1?'':'s'} registradas. «Liberar» borra del teléfono solo las que ya están en Drive.`;
+  if(navigator.storage?.estimate) navigator.storage.estimate().then(e => { $('#aEspacio').textContent += ` Espacio usado por la app: ${(e.usage/1048576).toFixed(1)} MB.`; });
+}
+$('#aMaterias').addEventListener('click', e => { const b = e.target.closest('[data-mat]'); if(b) dlgMateria(b.dataset.mat); });
+function leerAjustes(){ ajustes.url = $('#aUrl').value.trim(); ajustes.clave = $('#aClave').value; ajustes.nombre = $('#aNombre').value.trim(); }
+$('#aGuardar').addEventListener('click', () => {
+  leerAjustes();
+  if(ajustes.url && !/^https:\/\/script\.google\.com\/.+\/exec$/.test(ajustes.url)){ toast('La URL debe empezar con https://script.google.com y terminar en /exec', true); return; }
+  LS.set('lab_aj', ajustes); toast('Ajustes guardados'); catSucio = catSucio || cat.materias.length > 0; LS.set('lab_cat_sucio', catSucio);
+  document.activeElement?.blur(); render(); sincronizar(true);
+});
+$('#aProbar').addEventListener('click', async () => {
+  leerAjustes(); if(!ajustes.url){ toast('Pega primero la URL del script', true); return; }
+  try{ const j = await llamarScript({accion:'ping'}); ajustes.hoja = j.url || ''; LS.set('lab_aj', ajustes); toast(`Conectado a «${j.hoja}»`); render(); }
+  catch(e){ toast('No conecta: ' + e.message, true); }
+});
+$('#aRespaldo').addEventListener('click', () => {
+  const datos = JSON.stringify({app:'lab-practicas', version:APP_VERSION, exportado:isoLocal(), cat, registros}, null, 1);
+  compartirArchivos([new File([datos], `respaldo_laboratorio_${hoy().replace(/-/g,'')}.json`, {type:'application/json'})]);
+});
+$('#aImportar').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if(!f) return;
+  try{
+    const j = JSON.parse(await f.text()); if(j.app !== 'lab-practicas') throw new Error();
+    let nm = 0, np = 0, nr = 0;
+    j.cat.materias.forEach(m => { if(!materiaPorId(m.id)){ cat.materias.push(m); nm++; } });
+    j.cat.practicas.forEach(p => { if(!practicaPorId(p.id)){ cat.practicas.push(p); np++; } });
+    j.registros.forEach(r => { if(!registros.some(x => x.id === r.id)){ registros.push(r); nr++; } });
+    guardarCat(); guardarReg(); render();
+    toast(`Importado: ${nm} materias, ${np} prácticas, ${nr} registros (las fotos están en Drive)`);
+  }catch(err){ toast('El archivo no es un respaldo de esta app', true); }
+});
+$('#aLiberar').addEventListener('click', async () => {
+  const subidas = registros.flatMap(r => r.fotos.filter(f => f.url && f.url.startsWith('http')));
+  if(!subidas.length){ toast('No hay fotos subidas que liberar'); return; }
+  if(!confirm(`Se borrarán del teléfono ${subidas.length} foto${subidas.length===1?'':'s'} que ya están en Google Drive. ¿Continuar?`)) return;
+  for(const f of subidas){ await IDB.del(f.id).catch(() => {}); urlsMini.delete(f.id); }
+  toast('Fotos liberadas'); render();
+});
+
+/* =================== Instalación y actualizaciones =================== */
+let promptInstalar = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); promptInstalar = e; $('#btnInstall').classList.remove('hidden'); });
+$('#btnInstall').addEventListener('click', async () => { if(!promptInstalar) return; promptInstalar.prompt(); await promptInstalar.userChoice; promptInstalar = null; $('#btnInstall').classList.add('hidden'); });
+let swEnEspera = null;
+$('#updBtn').addEventListener('click', () => {
+  if(cap.fotos.some(f => f.nueva) && !confirm('Hay fotos sin guardar. ¿Actualizar de todos modos?')) return;
+  if(swEnEspera) swEnEspera.postMessage('ACTUALIZAR'); else location.reload();
+});
+if('serviceWorker' in navigator && location.protocol !== 'file:'){
+  let recargando = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if(!recargando){ recargando = true; location.reload(); } });
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    const mostrar = sw => { swEnEspera = sw; $('#updBar').classList.remove('hidden'); };
+    const vigilar = sw => sw && sw.addEventListener('statechange', () => { if(sw.state === 'installed' && navigator.serviceWorker.controller) mostrar(sw); });
+    if(reg.waiting && navigator.serviceWorker.controller) mostrar(reg.waiting);
+    vigilar(reg.installing);
+    reg.addEventListener('updatefound', () => vigilar(reg.installing));
+    document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') reg.update().catch(() => {}); });
+  }).catch(() => {});
+}
+
+/* =================== Arranque =================== */
+history.replaceState({v:'inicio'}, '');
+render();
+if(navigator.storage?.persist) navigator.storage.persist().catch(() => {});
+setTimeout(() => sincronizar(true), 1200);
+</script>
+</body>
+</html>
