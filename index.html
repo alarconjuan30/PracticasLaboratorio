@@ -328,10 +328,11 @@ a{color:var(--primary)}
     <div class="section-title">Google Sheets</div>
     <div class="note" id="aSyncEstado"></div>
     <div class="grid one">
-      <label class="f">URL del script (termina en /exec)<input type="url" id="aUrl" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
-      <label class="f">Clave<input type="password" id="aClave" autocomplete="off"></label>
+      <label class="f">URL del script (termina en /exec)<input type="url" id="aUrl" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>
+      <label class="f">Clave (la misma de <code>const CLAVE</code> en el script)<input type="text" id="aClave" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
       <label class="f">Tu nombre<input type="text" id="aNombre" placeholder="Se anota en cada registro" autocomplete="name"></label>
-      <div class="btn-row"><button class="btn" type="button" id="aProbar">Probar conexión</button><button class="btn primary" type="button" id="aGuardar">Guardar</button></div>
+      <div class="btn-row"><button class="btn" type="button" id="aGuardar">Guardar</button><button class="btn primary" type="button" id="aProbar">Conectar</button></div>
+      <div class="note hidden" id="aDiag" style="margin:0" role="status"></div>
       <a class="btn block hidden" id="aAbrirHoja" target="_blank" rel="noopener">Abrir la hoja</a>
     </div>
   </div>
@@ -375,7 +376,7 @@ a{color:var(--primary)}
 
 <script>
 'use strict';
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.1.1';
 
 /* =================== Utilidades =================== */
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
@@ -961,12 +962,40 @@ async function compartirFotos(rs){
 /* =================== Google Sheets =================== */
 let sincronizando = false, syncT;
 function syncDiferido(){ clearTimeout(syncT); syncT = setTimeout(() => sincronizar(true), 1500); }
+/* Cada error explica la causa probable y cómo corregirla */
 async function llamarScript(cuerpo){
-  const r = await fetch(ajustes.url, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(Object.assign({clave:ajustes.clave}, cuerpo)), redirect:'follow'});
+  if(!navigator.onLine) throw new Error('El teléfono no tiene internet en este momento.');
+  let r;
+  try{ r = await fetch(ajustes.url, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(Object.assign({clave:ajustes.clave}, cuerpo)), redirect:'follow'}); }
+  catch(e){ throw new Error('Google no dejó entrar a la app. Casi siempre es el acceso de la implementación: en Apps Script → Implementar → Administrar implementaciones → lápiz, «Quién tiene acceso» debe ser «Cualquier usuario» (no «Cualquier usuario con cuenta de Google» ni «Solo yo»). Después: Versión → Nueva versión → Implementar.'); }
   const t = await r.text();
-  let j; try{ j = JSON.parse(t); }catch(e){ throw new Error('Respuesta inesperada del script (¿URL correcta y acceso «Cualquier usuario»?)'); }
-  if(!j.ok) throw new Error(j.error || 'Error del script');
+  let j; try{ j = JSON.parse(t); }catch(e){
+    if(r.status === 404 || /no se encontr|not found|unable to open/i.test(t)) throw new Error('La URL no corresponde a ninguna implementación. Copia de nuevo la «URL de la aplicación web» (termina en /exec) desde Implementar → Administrar implementaciones.');
+    if(/doPost/i.test(t)) throw new Error('El script no tiene la función doPost: pega TODO el código de Codigo.gs, guarda (💾) y crea una nueva versión de la implementación.');
+    if(/accounts\.google|signin|iniciar sesi|ServiceLogin/i.test(t)) throw new Error('Google pide iniciar sesión: la implementación no es pública. Cambia «Quién tiene acceso» a «Cualquier usuario» y crea una nueva versión.');
+    if(/autoriz|authoriz|permission/i.test(t)) throw new Error('Falta autorizar el script: en Apps Script presiona ▶ Ejecutar (función doGet), acepta los permisos y vuelve a implementar.');
+    throw new Error(`Respuesta inesperada de Google (código ${r.status}). Revisa la URL y el acceso «Cualquier usuario».`);
+  }
+  if(!j.ok){
+    if(j.error === 'Clave incorrecta') throw new Error('Clave incorrecta: escribe en la app exactamente la misma clave que pusiste en la línea const CLAVE del script (distingue mayúsculas y espacios). Si cambiaste la clave en el script, crea una nueva versión de la implementación.');
+    if(j.error === 'Acción desconocida') throw new Error('Esa URL es de otro script (¿el de la app de campo?). Esta app necesita su propia hoja con el código de app_laboratorio/apps_script/Codigo.gs.');
+    throw new Error(j.error || 'Error del script');
+  }
   return j;
+}
+/* Limpia lo que se pega: espacios, saltos de línea y lo que venga después de /exec */
+function normalizarUrl(u){
+  u = String(u || '').replace(/\s+/g, '');
+  const m = u.match(/^(https:\/\/script\.google\.com\/[^?#]+\/(exec|dev))/);
+  return m ? m[1] : u;
+}
+function validarUrl(u){
+  if(!u) return 'Pega primero la URL del script.';
+  if(/\/dev$/.test(u)) return 'Esa es la URL de prueba (/dev). Usa la «URL de la aplicación web», que termina en /exec.';
+  if(/docs\.google\.com\/spreadsheets/.test(u)) return 'Esa es la dirección de la hoja, no la del script. En la hoja: Extensiones → Apps Script → Implementar → Administrar implementaciones y copia la URL que termina en /exec.';
+  if(/script\.google\.com\/.*\/edit/.test(u) || /script\.google\.com\/home/.test(u)) return 'Esa es la dirección del editor de Apps Script. Copia la «URL de la aplicación web» (termina en /exec) que aparece al implementar.';
+  if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(u)) return 'La URL debe empezar con https://script.google.com y terminar en /exec.';
+  return '';
 }
 const blobABase64 = b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.onerror = rej; fr.readAsDataURL(b); });
 function filasCatalogo(){
@@ -1046,18 +1075,35 @@ function renderAjustes(){
   if(navigator.storage?.estimate) navigator.storage.estimate().then(e => { $('#aEspacio').textContent += ` Espacio usado por la app: ${(e.usage/1048576).toFixed(1)} MB.`; });
 }
 $('#aMaterias').addEventListener('click', e => { const b = e.target.closest('[data-mat]'); if(b) dlgMateria(b.dataset.mat); });
-function leerAjustes(){ ajustes.url = $('#aUrl').value.trim(); ajustes.clave = $('#aClave').value; ajustes.nombre = $('#aNombre').value.trim(); }
+function leerAjustes(){ ajustes.url = $('#aUrl').value.trim(); ajustes.clave = $('#aClave').value.trim(); ajustes.nombre = $('#aNombre').value.trim(); }
+function diagnostico(texto, ok){
+  const d = $('#aDiag'); d.classList.remove('hidden'); d.className = 'note ' + (ok ? '' : 'warn'); d.innerHTML = texto;
+}
+async function conectar(){
+  leerAjustes(); ajustes.url = normalizarUrl(ajustes.url); $('#aUrl').value = ajustes.url;
+  const malo = validarUrl(ajustes.url); if(malo){ diagnostico('<b>No se guardó.</b> ' + esc(malo)); toast('Revisa la URL', true); return; }
+  if(!ajustes.clave){ diagnostico('<b>Falta la clave.</b> Escribe la misma que pusiste en la línea <code>const CLAVE</code> del script.'); return; }
+  diagnostico('Probando conexión…', true); $('#aProbar').disabled = $('#aGuardar').disabled = true;
+  try{
+    const j = await llamarScript({accion:'ping'});
+    if(!j.url) throw new Error('Esa URL es de otro script (¿el de la app de campo?). Esta app necesita su propia hoja con el código de app_laboratorio/apps_script/Codigo.gs.');
+    ajustes.hoja = j.url; LS.set('lab_aj', ajustes);
+    catSucio = catSucio || cat.materias.length > 0; LS.set('lab_cat_sucio', catSucio); syncInfo.error = null;
+    diagnostico(`✓ Conectado y guardado: hoja «${esc(j.hoja)}». Los registros se enviarán automáticamente.`, true);
+    toast('Conectado a Google Sheets'); render(); sincronizar(true);
+  }catch(e){
+    diagnostico('<b>No conecta.</b> ' + esc(e.message) + '<br><span class="hint">La URL y la clave quedaron escritas; corrige lo indicado y vuelve a tocar «Conectar».</span>');
+    toast('No conecta con Google Sheets', true);
+  }finally{ $('#aProbar').disabled = $('#aGuardar').disabled = false; }
+}
 $('#aGuardar').addEventListener('click', () => {
-  leerAjustes();
-  if(ajustes.url && !/^https:\/\/script\.google\.com\/.+\/exec$/.test(ajustes.url)){ toast('La URL debe empezar con https://script.google.com y terminar en /exec', true); return; }
-  LS.set('lab_aj', ajustes); toast('Ajustes guardados'); catSucio = catSucio || cat.materias.length > 0; LS.set('lab_cat_sucio', catSucio);
-  document.activeElement?.blur(); render(); sincronizar(true);
+  leerAjustes(); ajustes.url = normalizarUrl(ajustes.url);
+  const malo = ajustes.url ? validarUrl(ajustes.url) : '';
+  if(malo){ diagnostico('<b>No se guardó.</b> ' + esc(malo)); return; }
+  LS.set('lab_aj', ajustes); toast('Ajustes guardados'); document.activeElement?.blur(); render();
+  if(ajustes.url) conectar();
 });
-$('#aProbar').addEventListener('click', async () => {
-  leerAjustes(); if(!ajustes.url){ toast('Pega primero la URL del script', true); return; }
-  try{ const j = await llamarScript({accion:'ping'}); ajustes.hoja = j.url || ''; LS.set('lab_aj', ajustes); toast(`Conectado a «${j.hoja}»`); render(); }
-  catch(e){ toast('No conecta: ' + e.message, true); }
-});
+$('#aProbar').addEventListener('click', conectar);
 $('#aRespaldo').addEventListener('click', () => {
   const datos = JSON.stringify({app:'lab-practicas', version:APP_VERSION, exportado:isoLocal(), cat, registros}, null, 1);
   compartirArchivos([new File([datos], `respaldo_laboratorio_${hoy().replace(/-/g,'')}.json`, {type:'application/json'})]);

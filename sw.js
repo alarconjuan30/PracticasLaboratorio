@@ -1,6 +1,6 @@
 // Service worker: guarda la app en el teléfono para que abra aun sin señal.
 // Al modificar index.html, subir el número de versión para que la app muestre «Nueva versión disponible».
-const CACHE = 'lab-practicas-v2';
+const CACHE = 'lab-practicas-v3';
 const ARCHIVOS = ['./', './index.html', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
